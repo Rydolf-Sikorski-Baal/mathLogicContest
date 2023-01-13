@@ -37,4 +37,9 @@ public class VariableNode extends ExpressionTreeNode{
     public String toString(){
         return this.variableName.name();
     }
+
+    @Override
+    public String toPrefixString(){
+        return this.toString();
+    }
 }

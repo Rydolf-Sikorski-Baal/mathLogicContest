@@ -16,7 +16,6 @@ public class VariableName {
 
     @Override
     public String toString(){
-        if (this.name.charAt(0) == '_') return this.name.substring(1);
         return this.name;
     }
 

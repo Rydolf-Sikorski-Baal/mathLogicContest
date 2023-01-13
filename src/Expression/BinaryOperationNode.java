@@ -45,4 +45,14 @@ public class BinaryOperationNode extends ExpressionTreeNode{
     public String toString(){
         return '(' + this.firstNode.toString() + this.nodeOperation.toString() + this.secondNode.toString() + ')';
     }
+
+    @Override
+    public String toPrefixString() {
+        return
+                '(' +
+                        this.nodeOperation.toString() +
+                        ',' + this.firstNode.toPrefixString() +
+                        ',' + this.secondNode.toPrefixString() +
+                        ')';
+    }
 }

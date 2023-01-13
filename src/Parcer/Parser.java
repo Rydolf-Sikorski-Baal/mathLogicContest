@@ -72,6 +72,7 @@ public class Parser {
         if (('A' <= ch) && (ch <= 'Z')) return true;
         if (('0' <= ch) && (ch <= '9')) return true;
         if (ch == '_') return true;
+        if (ch == '’') return true;
         return (int)ch == 39;
     }
     String operatorSymbolRegexp = "[!|&->]";
@@ -185,8 +186,10 @@ public class Parser {
     }
     private ExpressionTreeNode getTreeRootFromSequence(int left, int right){
         if (sparseTable == null) getSparseTableFromSequence();
-        int nodeTypeInd = sparseTable.getMaxIndexFromSequence(left, right);
+        int nodeTypeInd = sparseTable.getRightMaxIndexFromSequence(left, right);
         String nodeTypeName = expressionSequence.get(nodeTypeInd);
+        if (nodeTypeName.equals("_impl") || nodeTypeName.equals("_inv"))
+            nodeTypeInd = sparseTable.getLeftMaxIndexFromSequence(left, right);
 
         ExpressionTreeNode node;
         switch(nodeTypeName){

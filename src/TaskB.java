@@ -17,7 +17,7 @@ public class TaskB {
     }
 
     public static void main(String[] args) throws IOException {
-        TaskB taskB = TaskB.getInstance();
+        TaskB taskB = getInstance();
 
         Parser parser = Parser.getInstance();
 

@@ -41,6 +41,11 @@ public class ExpressionTree {
 
     @Override
     public String toString(){
-        return root.toString();
+        String result = root.toString();
+        return result.length() > 1 ? result.substring(1, result.length() - 1) : result;
+    }
+
+    public String toPrefixString(){
+        return this.root.toPrefixString();
     }
 }
