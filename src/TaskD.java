@@ -1,31 +1,32 @@
-import Parcer.ProofParser;
 import Expression.ExpressionTree;
+import Parcer.Parser;
+import Parcer.ProofParser;
 import proofs.Proof;
 import proofs.ProofBuilderDirector;
-import proofs.newClassicProofBuilder;
+import proofs.newIntuitionistProofBuilder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class TaskC {
-    private static TaskC TaskCInstance = null;
-    private TaskC(){}
-    public static TaskC getInstance(){
-        if (TaskCInstance == null) TaskCInstance = new TaskC();
+public class TaskD {
+    private static TaskD TaskDInstance = null;
+    private TaskD(){}
+    public static TaskD getInstance(){
+        if (TaskDInstance == null) TaskDInstance = new TaskD();
 
-        return TaskCInstance;
+        return TaskDInstance;
     }
 
     public static void main(String[] args) throws IOException{
-        TaskC taskC = TaskC.getInstance();
+        TaskD TaskD = getInstance();
 
         String input = read(System.in);
 
         Proof proof = ProofParser.getInstance().parseProofFromString(input);
 
-        String result = taskC.getNewProof(proof);
+        String result = TaskD.getNewProof(proof);
 
         System.out.print(result);
     }
@@ -55,7 +56,7 @@ public class TaskC {
 
     public String getNewProof(Proof oldProof){
         ExpressionTree hypA = oldProof.hypotheses().get(oldProof.hypotheses().size() - 1);
-        ProofBuilderDirector director = new ProofBuilderDirector(new newClassicProofBuilder());
+        ProofBuilderDirector director = new ProofBuilderDirector(new newIntuitionistProofBuilder());
         Proof newProof = director.buildProof(oldProof, hypA);
         return newProof.toString();
     }

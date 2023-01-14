@@ -3,11 +3,9 @@ package proofs;
 import Expression.ExpressionTree;
 
 public class ProofBuilderDirector {
-    private static ProofBuilderDirector instance = null;
-    private ProofBuilderDirector(){}
-    public static ProofBuilderDirector getInstance(){
-        if (instance == null) instance = new ProofBuilderDirector();
-        return instance;
+    private AbstractNewProofBuilder builder;
+    public ProofBuilderDirector(AbstractNewProofBuilder builder){
+        this.builder = builder;
     }
 
     public Proof buildProof(Proof oldProof, ExpressionTree hypA){

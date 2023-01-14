@@ -166,8 +166,8 @@ public class Parser {
         if (Objects.equals(current, "_and")) return 7;
         if (Objects.equals(current, "_or")) return 8;
         if (Objects.equals(current, "_impl")) return 9;
-        if (Objects.equals(current, "_opBr")) return -1000*1000;
-        if (Objects.equals(current, "_clBr")) return -1000*1000;
+        if (Objects.equals(current, "_opBr")) return -1000*1000*1000;
+        if (Objects.equals(current, "_clBr")) return -1000*1000*1000;
 
         return 1;
     }

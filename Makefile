@@ -1,7 +1,7 @@
 SOURCES = $(shell find src -type f -name "*.java")
 .PHONY = all clean
 
-all: out/taskA.zip out/taskB.zip out/taskC.zip
+all: out/taskA.zip out/taskB.zip out/taskC.zip out/taskD.zip
 
 out/task%.zip: meta/%/Makefile $(SOURCES)
 	mkdir -p $(@D)

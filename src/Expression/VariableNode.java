@@ -19,7 +19,10 @@ public class VariableNode extends ExpressionTreeNode{
     @Override
     public boolean equals(Object obj){
         if (obj.getClass() != this.getClass()) return false;
-        return this.variableName.equals(((VariableNode) obj).getVariableName());
+        return this.variableName
+                .equals(
+                        ((VariableNode) obj).getVariableName()
+                );
     }
 
     public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> constructedMap){
@@ -42,4 +45,7 @@ public class VariableNode extends ExpressionTreeNode{
     public String toPrefixString(){
         return this.toString();
     }
+
+    @Override
+    public int hashCode(){return this.variableName.hashCode();}
 }

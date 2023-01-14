@@ -1,11 +1,14 @@
 package proofs;
 
 import Expression.*;
+import MathOperations.LogicImplementation;
 import Parcer.Parser;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecoratorInterface;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class newClassicProofBuilder extends AbstractNewProofBuilder {
     private final ArrayList<ExpressionTree> hypotheses = new ArrayList<>();
@@ -66,34 +69,41 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
     }
     @Override
     public AbstractNewProofBuilder rebuildProof(ArrayList<ExpressionTree> oldStatements, ExpressionTree hypA) {
+        Set<ExpressionTreeNode> deducted = new HashSet<>();
+        ExpressionTree previous;
         for (ExpressionTree currentStatement : oldStatements){
-            //выводится из доказанного
-            // нужно найти из чего оно выведено (StI -> cSt)
+            //если выводится из доказанного,
+            //то нужно найти из чего оно выведено (StI -> cSt)
+            if ((previous = tryToFindPrevious(deducted, currentStatement)) != null) {
+                BinaryOperationNode prRoot = (BinaryOperationNode) previous.root();
 
-            ExpressionTree previous;
-            if ((previous = tryToFindPrevious(currentStatement, hypA)) != null) {
-                ExpressionTree left = new ExpressionTree(((BinaryOperationNode)previous.root()).getFirstNode(),
-                        previous.variables());
-                ExpressionTree right = new ExpressionTree(((BinaryOperationNode)previous.root()).getSecondNode(),
-                        previous.variables());
+                ExpressionTree left = new ExpressionTree(prRoot.getFirstNode(),
+                        prRoot.getFirstNode().getVariables());
+                ExpressionTree right = new ExpressionTree(prRoot.getSecondNode(),
+                        prRoot.getSecondNode().getVariables());
 
                 addPreviouslyConstructed(hypA, left, right);
 
+                deducted.add(currentStatement.root());
                 continue;
             }
 
             if (isOneOfAxioms(currentStatement)) { //аксиома
                 addAxiomaticProof(hypA, currentStatement);
 
+                deducted.add(currentStatement.root());
                 continue;
             }
             if (isOneOfHypotheses(currentStatement)) { //одна из гипотез
                 addAxiomaticProof(hypA, currentStatement);
 
+                deducted.add(currentStatement.root());
                 continue;
             }
             if (hypA.equals(currentStatement)) { //hypA
                 addSelfImplication(hypA);
+
+                deducted.add(currentStatement.root());
             }
         }
         return this;
@@ -173,32 +183,24 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         statements.add(decorator.getExpression());//hypA -> cSt
     }
 
-    private ExpressionTree tryToFindPrevious(ExpressionTree currentStatement, ExpressionTree hypA){
+    private ExpressionTree tryToFindPrevious(Set<ExpressionTreeNode> deducted, ExpressionTree currentStatement){
         //we need h->left && h->left->right expressions
         //right == currentStatement
+        for (ExpressionTreeNode previousRoot : deducted){
+            if (previousRoot instanceof BinaryOperationNode) {
+                BinaryOperationNode prRoot = (BinaryOperationNode) previousRoot;
 
-        ExpressionTree result = null;
-        for (ExpressionTree previousExpression : this.statements){
-            ExpressionTreeNode currentRoot = previousExpression.root();
-            if (currentRoot.getClass() != BinaryOperationNode.class) continue;
-            if (!((BinaryOperationNode)currentRoot).getFirstNode().equals(hypA.root())) continue;
-
-            ExpressionTreeNode currentRight = ((BinaryOperationNode) currentRoot).getSecondNode();
-            if (currentRight.getClass() != BinaryOperationNode.class) continue;
-
-            ExpressionTreeNode prRight = ((BinaryOperationNode) currentRight).getSecondNode();
-
-            if (prRight.equals(currentStatement.root()))
-                for (ExpressionTree tryingLeft : this.statements){
-                    ExpressionTreeNode tryingRoot = tryingLeft.root();
-                    if (tryingRoot.getClass() != BinaryOperationNode.class) continue;
-                    if (!((BinaryOperationNode)tryingRoot).getFirstNode().equals(hypA.root())) continue;
-
-                    if (((BinaryOperationNode) tryingRoot).getSecondNode().equals(((BinaryOperationNode) currentRight).getFirstNode()))
-                        result = new ExpressionTree(((BinaryOperationNode) currentRoot).getSecondNode(), previousExpression.variables());
+                if (prRoot.getNodeOperation() instanceof LogicImplementation) {
+                    if (currentStatement.root().equals(prRoot.getSecondNode())) {
+                        for (ExpressionTreeNode previousLeft : deducted) {
+                            if (previousLeft.equals(prRoot.getFirstNode()))
+                                return new ExpressionTree(previousRoot, previousRoot.getVariables());
+                        }
+                    }
                 }
+            }
         }
-        return result;
+        return null;
     }
 
     @Override
