@@ -36,9 +36,10 @@ public class BinaryOperationNode extends ExpressionTreeNode{
 
     public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> map){
         if (obj.getClass() != this.getClass()) return false;
-        return (nodeOperation.equals(((BinaryOperationNode) obj).getNodeOperation())) &&
-                (firstNode.tryAsSchemeFor(((BinaryOperationNode) obj).getFirstNode(), map)) &&
-                (secondNode.tryAsSchemeFor(((BinaryOperationNode) obj).getSecondNode(), map));
+        BinaryOperationNode objNode = (BinaryOperationNode) obj;
+        return (nodeOperation.equals(objNode.getNodeOperation())) &&
+                (firstNode.tryAsSchemeFor(objNode.getFirstNode(), map)) &&
+                (secondNode.tryAsSchemeFor(objNode.getSecondNode(), map));
     }
 
     @Override

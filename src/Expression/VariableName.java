@@ -11,7 +11,8 @@ public class VariableName {
     @Override
     public boolean equals(Object obj){
         if (obj.getClass() != this.getClass()) return false;
-        return this.name.equals(((VariableName) obj).name());
+        VariableName objName = (VariableName) obj;
+        return this.name.equals(objName.name());
     }
 
     @Override

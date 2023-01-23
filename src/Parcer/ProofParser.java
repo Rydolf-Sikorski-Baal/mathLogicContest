@@ -41,7 +41,7 @@ public class ProofParser {
         ArrayList<ExpressionTree> hypotheses = new ArrayList<>();
 
         StringBuilder currentHypothesisString = new StringBuilder();
-        while ((input.charAt(ind) != '|') || (input.charAt(ind + 1) != '-')){
+        while (((int)input.charAt(ind) != 124) && ((input.charAt(ind) != '|')) || (input.charAt(ind + 1) != '-')){
             if (input.charAt(ind) == ',') {
                 hypotheses.add(parser.getExpressionTree(currentHypothesisString.toString()));
                 currentHypothesisString = new StringBuilder();
@@ -52,11 +52,18 @@ public class ProofParser {
             ind++;
             if (ind == input.length()) break;
         }
-        hypotheses.add(parser.getExpressionTree(currentHypothesisString.toString()));
+        if (isNotUseless(currentHypothesisString.toString()))
+            hypotheses.add(parser.getExpressionTree(currentHypothesisString.toString()));
 
         ind += 2;
 
         return hypotheses;
+    }
+
+    private static boolean isNotUseless(String line) {
+        for (char ch : line.toCharArray())
+            if (!isEmpty(ch)) return true;
+        return false;
     }
 
     private static boolean isEmpty(char ch){

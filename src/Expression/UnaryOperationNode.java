@@ -31,8 +31,9 @@ public class UnaryOperationNode extends ExpressionTreeNode{
 
     public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> map){
         if (obj.getClass() != this.getClass()) return false;
-        return nodeOperation.equals(((UnaryOperationNode) obj).nodeOperation)
-                && (boolNode.tryAsSchemeFor(((UnaryOperationNode) obj).getBoolNode(), map));
+        UnaryOperationNode objNode = (UnaryOperationNode) obj;
+        return nodeOperation.equals(objNode.nodeOperation)
+                && boolNode.tryAsSchemeFor(objNode.getBoolNode(), map);
     }
 
     @Override

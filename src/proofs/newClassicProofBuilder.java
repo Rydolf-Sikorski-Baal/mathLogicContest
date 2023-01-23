@@ -6,9 +6,7 @@ import Parcer.Parser;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecoratorInterface;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class newClassicProofBuilder extends AbstractNewProofBuilder {
     private final ArrayList<ExpressionTree> hypotheses = new ArrayList<>();
@@ -39,8 +37,8 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         axioms.add(parser.getExpressionTree("_A -> _A | _B"));
         axioms.add(parser.getExpressionTree("_B -> _A | _B"));
         axioms.add(parser.getExpressionTree("(_A -> _C) -> (_B -> _C) -> (_A | _B -> _C"));
-        axioms.add(parser.getExpressionTree("(_A -> _B) -> (_A -> (!_B)) -> (!_A)"));
-        axioms.add(parser.getExpressionTree("(!(!_A))->_A"));
+        axioms.add(parser.getExpressionTree("(_A -> _B) -> (_A -> !_B) -> !_A"));
+        axioms.add(parser.getExpressionTree("!!_A->_A"));
 
         return this;
     }
@@ -69,44 +67,74 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
     }
     @Override
     public AbstractNewProofBuilder rebuildProof(ArrayList<ExpressionTree> oldStatements, ExpressionTree hypA) {
+
+        Map<ExpressionTree, ExpressionTree> modusPonensCandidates = new HashMap<>();
         Set<ExpressionTreeNode> deducted = new HashSet<>();
-        ExpressionTree previous;
         for (ExpressionTree currentStatement : oldStatements){
-            //если выводится из доказанного,
-            //то нужно найти из чего оно выведено (StI -> cSt)
-            if ((previous = tryToFindPrevious(deducted, currentStatement)) != null) {
-                BinaryOperationNode prRoot = (BinaryOperationNode) previous.root();
-
-                ExpressionTree left = new ExpressionTree(prRoot.getFirstNode(),
-                        prRoot.getFirstNode().getVariables());
-                ExpressionTree right = new ExpressionTree(prRoot.getSecondNode(),
-                        prRoot.getSecondNode().getVariables());
-
-                addPreviouslyConstructed(hypA, left, right);
-
-                deducted.add(currentStatement.root());
-                continue;
-            }
-
-            if (isOneOfAxioms(currentStatement)) { //аксиома
-                addAxiomaticProof(hypA, currentStatement);
-
-                deducted.add(currentStatement.root());
-                continue;
-            }
-            if (isOneOfHypotheses(currentStatement)) { //одна из гипотез
-                addAxiomaticProof(hypA, currentStatement);
-
-                deducted.add(currentStatement.root());
-                continue;
-            }
-            if (hypA.equals(currentStatement)) { //hypA
-                addSelfImplication(hypA);
-
-                deducted.add(currentStatement.root());
-            }
+            if (deducted.contains(currentStatement.root())) continue;
+            processProofStatement(currentStatement, hypA, modusPonensCandidates, deducted);
+            deducted.add(currentStatement.root());
         }
         return this;
+    }
+
+    private void processProofStatement(ExpressionTree currentStatement,
+                                       ExpressionTree hypA,
+                                       Map<ExpressionTree, ExpressionTree> modusPonensCandidates,
+                                       Set<ExpressionTreeNode> deducted){
+        ExpressionTree previous;
+        if (currentStatement.root() instanceof BinaryOperationNode) {
+            BinaryOperationNode node = (BinaryOperationNode) currentStatement.root();
+            if (node.getNodeOperation() instanceof LogicImplementation) {
+                ExpressionTree left = new ExpressionTree(node.getFirstNode(),
+                        node.getFirstNode().getVariables());
+                ExpressionTree right = new ExpressionTree(node.getSecondNode(),
+                        node.getSecondNode().getVariables());
+
+                modusPonensCandidates.put(right, left);
+            }
+        }
+
+        if ((previous = tryToFindPreviousFast(modusPonensCandidates, currentStatement)) != null){
+            BinaryOperationNode prRoot = (BinaryOperationNode) previous.root();
+
+            ExpressionTree left = new ExpressionTree(prRoot.getFirstNode(),
+                    prRoot.getFirstNode().getVariables());
+            ExpressionTree right = new ExpressionTree(prRoot.getSecondNode(),
+                    prRoot.getSecondNode().getVariables());
+
+            addPreviouslyConstructed(hypA, left, right);
+            return;
+        }
+        if (isOneOfAxioms(currentStatement)) { //аксиома
+            addAxiomaticProof(hypA, currentStatement);
+            return;
+        }
+        if (isOneOfHypotheses(currentStatement)) { //одна из гипотез
+            addAxiomaticProof(hypA, currentStatement);
+            return;
+        }
+        if (hypA.equals(currentStatement)) { //hypA
+            addSelfImplication(hypA);
+            return;
+        }
+
+        //если выводится из доказанного,
+        //то нужно найти из чего оно выведено (StI -> cSt)
+        if ((previous = tryToFindPrevious(deducted, currentStatement)) != null) {
+            BinaryOperationNode prRoot = (BinaryOperationNode) previous.root();
+
+            ExpressionTree left = new ExpressionTree(prRoot.getFirstNode(),
+                    prRoot.getFirstNode().getVariables());
+            ExpressionTree right = new ExpressionTree(prRoot.getSecondNode(),
+                    prRoot.getSecondNode().getVariables());
+
+            addPreviouslyConstructed(hypA, left, right);
+        }
+    }
+
+    private ExpressionTree tryToFindPreviousFast(Map<ExpressionTree, ExpressionTree> modusPonensCandidates, ExpressionTree currentStatement) {
+        return modusPonensCandidates.get(currentStatement);
     }
 
     private void addSelfImplication(ExpressionTree hypA){
@@ -183,8 +211,9 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         statements.add(decorator.getExpression());//hypA -> cSt
     }
 
-    private ExpressionTree tryToFindPrevious(Set<ExpressionTreeNode> deducted, ExpressionTree currentStatement){
-        //we need h->left && h->left->right expressions
+    private ExpressionTree tryToFindPrevious(Set<ExpressionTreeNode> deducted,
+                                             ExpressionTree currentStatement){
+        //we need (left) && (left->right) expressions
         //right == currentStatement
         for (ExpressionTreeNode previousRoot : deducted){
             if (previousRoot instanceof BinaryOperationNode) {
@@ -194,7 +223,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
                     if (currentStatement.root().equals(prRoot.getSecondNode())) {
                         for (ExpressionTreeNode previousLeft : deducted) {
                             if (previousLeft.equals(prRoot.getFirstNode()))
-                                return new ExpressionTree(previousRoot, previousRoot.getVariables());
+                                return new ExpressionTree(previousRoot, new VariablesList());
                         }
                     }
                 }

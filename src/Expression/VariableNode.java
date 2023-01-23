@@ -26,9 +26,7 @@ public class VariableNode extends ExpressionTreeNode{
     }
 
     public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> constructedMap){
-        if (obj.getClass().getSuperclass() != ExpressionTreeNode.class) return false;
-
-        if (constructedMap.get(this.variableName) == null){
+        if ((constructedMap.get(this.variableName)) == null){
             constructedMap.put(this.variableName, (ExpressionTreeNode)obj);
             return true;
         }

@@ -19,13 +19,11 @@ public class TaskC {
     }
 
     public static void main(String[] args) throws IOException{
-        TaskC taskC = TaskC.getInstance();
-
         String input = read(System.in);
 
         Proof proof = ProofParser.getInstance().parseProofFromString(input);
 
-        String result = taskC.getNewProof(proof);
+        String result = getNewProof(proof);
 
         System.out.print(result);
     }
@@ -53,7 +51,7 @@ public class TaskC {
         return false;
     }
 
-    public String getNewProof(Proof oldProof){
+    public static String getNewProof(Proof oldProof){
         ExpressionTree hypA = oldProof.hypotheses().get(oldProof.hypotheses().size() - 1);
         ProofBuilderDirector director = new ProofBuilderDirector(new newClassicProofBuilder());
         Proof newProof = director.buildProof(oldProof, hypA);
