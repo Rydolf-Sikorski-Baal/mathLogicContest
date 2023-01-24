@@ -38,4 +38,6 @@ public abstract class ExpressionTreeNode {
             node.getSecondNode().setVariables(variableNames);
         }
     }
+
+    public abstract ExpressionTreeNode getDeepCopy();
 }

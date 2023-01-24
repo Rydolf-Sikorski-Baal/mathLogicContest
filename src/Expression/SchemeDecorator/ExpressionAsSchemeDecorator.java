@@ -8,36 +8,47 @@ public class ExpressionAsSchemeDecorator extends AbstractExpressionAsSchemeDecor
     }
 
     @Override
-    public boolean changeVariableToExpression(VariableName variableName, ExpressionTree expression) {
-        for (VariableName currentVariableName : super.getExpression().variables().getVariableList())
+    public void changeVariableToExpression(VariableName variableName, ExpressionTree expression) {
+        VariablesList list = super.getExpression().variables();
+        for (VariableName currentVariableName : list.getVariableList())
             if (currentVariableName.equals(variableName)) {
                 changeCheckedVariableToExpression(variableName, expression, this.getExpression().root());
-                return true;
+                this.getExpression().setVariables(this.getExpression().root().getVariables());
+                return;
             }
-        return false;
     }
 
     private void changeCheckedVariableToExpression(VariableName variableName, ExpressionTree expression, ExpressionTreeNode node){
-        if(node.getClass() == UnaryOperationNode.class){
-            if ((((UnaryOperationNode) node).getBoolNode()).equals(new VariableNode(variableName))){
-                ((UnaryOperationNode) node).setBoolNode(expression.root());
-                return;
+        if(node instanceof UnaryOperationNode){
+            UnaryOperationNode currentNode = (UnaryOperationNode) node;
+            if (currentNode.getBoolNode() instanceof VariableNode){
+                VariableNode boolNode = (VariableNode) currentNode.getBoolNode();
+                if (boolNode.getVariableName().equals(variableName)){
+                    currentNode.setBoolNode(expression.root());
+                    return;
+                }
             }
 
-            changeCheckedVariableToExpression(variableName, expression, ((UnaryOperationNode) node).getBoolNode());
+            changeCheckedVariableToExpression(variableName, expression, currentNode.getBoolNode());
         }
 
-        if (node.getClass() == BinaryOperationNode.class){
-            if ((((BinaryOperationNode) node).getFirstNode()).equals(new VariableNode(variableName))){
-                ((BinaryOperationNode) node).setFirstNode(expression.root());
-            }else {
-                changeCheckedVariableToExpression(variableName, expression, ((BinaryOperationNode) node).getFirstNode());
+        if (node instanceof BinaryOperationNode){
+            BinaryOperationNode currentNode = (BinaryOperationNode) node;
+
+            if (currentNode.getFirstNode() instanceof VariableNode){
+                VariableNode firstNode = (VariableNode) currentNode.getFirstNode();
+                if (firstNode.getVariableName().equals(variableName))
+                    currentNode.setFirstNode(expression.root());
+            }   else {
+                changeCheckedVariableToExpression(variableName, expression, currentNode.getFirstNode());
             }
 
-            if ((((BinaryOperationNode) node).getSecondNode()).equals(new VariableNode(variableName))){
-                ((BinaryOperationNode) node).setSecondNode(expression.root());
-            }else{
-                changeCheckedVariableToExpression(variableName, expression, ((BinaryOperationNode) node).getSecondNode());
+            if (currentNode.getSecondNode() instanceof VariableNode){
+                VariableNode secondNode = (VariableNode) currentNode.getSecondNode();
+                if (secondNode.getVariableName().equals(variableName))
+                    currentNode.setSecondNode(expression.root());
+            }   else{
+                changeCheckedVariableToExpression(variableName, expression, currentNode.getSecondNode());
             }
         }
     }

@@ -29,17 +29,18 @@ public class BinaryOperationNode extends ExpressionTreeNode{
     @Override
     public boolean equals(Object obj){
         if (obj.getClass() != this.getClass()) return false;
-        return (nodeOperation.equals(((BinaryOperationNode) obj).getNodeOperation())) &&
-                (firstNode.equals(((BinaryOperationNode) obj).getFirstNode())) &&
-                (secondNode.equals(((BinaryOperationNode) obj).getSecondNode()));
+        BinaryOperationNode objNode = (BinaryOperationNode) obj;
+        return nodeOperation.equals(objNode.getNodeOperation()) &&
+                firstNode.equals(objNode.getFirstNode()) &&
+                secondNode.equals(objNode.getSecondNode());
     }
 
     public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> map){
         if (obj.getClass() != this.getClass()) return false;
         BinaryOperationNode objNode = (BinaryOperationNode) obj;
-        return (nodeOperation.equals(objNode.getNodeOperation())) &&
-                (firstNode.tryAsSchemeFor(objNode.getFirstNode(), map)) &&
-                (secondNode.tryAsSchemeFor(objNode.getSecondNode(), map));
+        return nodeOperation.equals(objNode.getNodeOperation()) &&
+                firstNode.tryAsSchemeFor(objNode.getFirstNode(), map) &&
+                secondNode.tryAsSchemeFor(objNode.getSecondNode(), map);
     }
 
     @Override
@@ -55,5 +56,13 @@ public class BinaryOperationNode extends ExpressionTreeNode{
                         ',' + this.firstNode.toPrefixString() +
                         ',' + this.secondNode.toPrefixString() +
                         ')';
+    }
+
+    @Override
+    public ExpressionTreeNode getDeepCopy() {
+        BinaryOperationNode newNode = new BinaryOperationNode(this.nodeOperation);
+        newNode.setFirstNode(this.firstNode.getDeepCopy());
+        newNode.setSecondNode(this.secondNode.getDeepCopy());
+        return newNode;
     }
 }

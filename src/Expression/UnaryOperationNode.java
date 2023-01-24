@@ -25,8 +25,9 @@ public class UnaryOperationNode extends ExpressionTreeNode{
     @Override
     public boolean equals(Object obj){
         if (obj.getClass() != this.getClass()) return false;
-        return nodeOperation.equals(((UnaryOperationNode) obj).nodeOperation)
-                && (boolNode.equals(((UnaryOperationNode) obj).getBoolNode()));
+        UnaryOperationNode objNode = (UnaryOperationNode) obj;
+        return nodeOperation.equals(objNode.nodeOperation)
+                && (boolNode.equals(objNode.getBoolNode()));
     }
 
     public boolean tryAsSchemeFor(Object obj, Map<VariableName, ExpressionTreeNode> map){
@@ -47,5 +48,12 @@ public class UnaryOperationNode extends ExpressionTreeNode{
     @Override
     public String toPrefixString(){
         return '(' + this.nodeOperation.toString() + this.boolNode.toPrefixString() + ')';
+    }
+
+    @Override
+    public ExpressionTreeNode getDeepCopy() {
+        UnaryOperationNode newCopy = new UnaryOperationNode(this.nodeOperation);
+        newCopy.setBoolNode(this.boolNode.getDeepCopy());
+        return newCopy;
     }
 }

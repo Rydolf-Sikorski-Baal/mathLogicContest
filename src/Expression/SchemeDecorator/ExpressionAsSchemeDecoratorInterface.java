@@ -5,5 +5,5 @@ import Expression.VariableName;
 
 public interface ExpressionAsSchemeDecoratorInterface {
     ExpressionTree getExpression();
-    boolean changeVariableToExpression(VariableName variableName, ExpressionTree expression);
+    void changeVariableToExpression(VariableName variableName, ExpressionTree expression);
 }

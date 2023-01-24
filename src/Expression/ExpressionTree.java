@@ -6,8 +6,9 @@ import java.util.Map;
 public class ExpressionTree {
     private final ExpressionTreeNode root;
     public ExpressionTreeNode root(){return root;}
-    private final VariablesList variables;
+    private VariablesList variables;
     public VariablesList variables(){return variables;}
+    public void setVariables(VariablesList variables){this.variables = variables;}
 
     public ExpressionTree(ExpressionTreeNode root, VariablesList variables) {
         this.root = root;
@@ -47,5 +48,11 @@ public class ExpressionTree {
 
     public String toPrefixString(){
         return this.root.toPrefixString();
+    }
+
+    public ExpressionTree getDeepCopy(){
+        ExpressionTreeNode newRoot = this.root.getDeepCopy();
+        VariablesList newVariables = newRoot.getVariables();
+        return new ExpressionTree(newRoot, newVariables);
     }
 }

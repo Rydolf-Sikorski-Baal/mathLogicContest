@@ -45,5 +45,11 @@ public class VariableNode extends ExpressionTreeNode{
     }
 
     @Override
+    public ExpressionTreeNode getDeepCopy() {
+        VariableNode newNode = new VariableNode(this.variableName);
+        return newNode;
+    }
+
+    @Override
     public int hashCode(){return this.variableName.hashCode();}
 }
