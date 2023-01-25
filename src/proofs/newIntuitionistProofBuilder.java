@@ -45,9 +45,9 @@ public class newIntuitionistProofBuilder extends AbstractNewProofBuilder{
     @Override
     public AbstractNewProofBuilder setFinalStatement(ExpressionTree finalStatement) {
         Parser parser = Parser.getInstance();
-        this.finalStatement = parser.getExpressionTree("!!_A");
+        this.finalStatement = parser.getExpressionTree("!!a");
         ExpressionAsSchemeDecoratorInterface decorator = new ExpressionAsSchemeDecorator(this.finalStatement);
-        decorator.changeVariableToExpression(new VariableName("_A"), finalStatement.getDeepCopy());
+        decorator.changeVariableToExpression(new VariableName("a"), finalStatement.getDeepCopy());
         this.finalStatement = decorator.getExpression();
         return this;
     }

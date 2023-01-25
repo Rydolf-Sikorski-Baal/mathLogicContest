@@ -42,8 +42,7 @@ public class ExpressionTree {
 
     @Override
     public String toString(){
-        String result = root.toString();
-        return result.length() > 1 ? result.substring(1, result.length() - 1) : result;
+        return root.toString();
     }
 
     @Override

@@ -9,7 +9,6 @@ public class ProofBuilderDirector {
     }
 
     public Proof buildProof(Proof oldProof, ExpressionTree hypA){
-        AbstractNewProofBuilder builder = new newClassicProofBuilder();
         return builder
                 .setHypotheses(oldProof.hypotheses(), hypA)
                 .setAxioms()

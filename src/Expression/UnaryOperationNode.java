@@ -41,7 +41,7 @@ public class UnaryOperationNode extends ExpressionTreeNode{
     public String toString(){
         return this.nodeOperation.toString()
                 +
-                (this.boolNode.getClass() == VariableNode.class || this.boolNode.getClass() == UnaryOperationNode.class
+                (this.boolNode.getClass() == VariableNode.class || this.boolNode instanceof UnaryOperationNode
                         ? this.boolNode.toString() : '(' + this.boolNode.toString() + ')');
     }
 
