@@ -18,6 +18,12 @@ public class ExpressionAsSchemeDecorator extends AbstractExpressionAsSchemeDecor
             }
     }
 
+    @Override
+    public void changeVariableToExpression(VariableName variableName, ExpressionTreeNode expression) {
+        ExpressionTree currExpression = new ExpressionTree(expression, expression.getVariables());
+        changeVariableToExpression(variableName, currExpression);
+    }
+
     private void changeCheckedVariableToExpression(VariableName variableName, ExpressionTree expression, ExpressionTreeNode node){
         if(node instanceof UnaryOperationNode){
             UnaryOperationNode currentNode = (UnaryOperationNode) node;

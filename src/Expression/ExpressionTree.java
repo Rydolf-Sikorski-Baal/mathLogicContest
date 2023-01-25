@@ -46,6 +46,11 @@ public class ExpressionTree {
         return result.length() > 1 ? result.substring(1, result.length() - 1) : result;
     }
 
+    @Override
+    public int hashCode(){
+        return this.toString().hashCode();
+    }
+
     public String toPrefixString(){
         return this.root.toPrefixString();
     }

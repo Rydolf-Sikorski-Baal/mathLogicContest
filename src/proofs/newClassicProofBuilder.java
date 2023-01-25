@@ -28,17 +28,17 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
     @Override
     public AbstractNewProofBuilder setAxioms() {
         Parser parser = Parser.getInstance();
-        axioms.add(parser.getExpressionTree("_A -> (_B -> _A)"));
-        axioms.add(parser.getExpressionTree("(_A -> _B) -> (_A -> _B -> _C) -> (_A -> _C))"));
-        axioms.add(parser.getExpressionTree("_A -> _B -> _A & _B"));
-        axioms.add(parser.getExpressionTree("_A & _B -> _A"));
-        axioms.add(parser.getExpressionTree("_A & _B -> _B"));
+        axioms.add(parser.getExpressionTree("a -> (b -> a)"));
+        axioms.add(parser.getExpressionTree("(a -> b) -> (a -> b -> c) -> (a -> c)"));
+        axioms.add(parser.getExpressionTree("a -> (b -> a & b)"));
+        axioms.add(parser.getExpressionTree("a & b -> a"));
+        axioms.add(parser.getExpressionTree("a & b -> b"));
 
-        axioms.add(parser.getExpressionTree("_A -> _A | _B"));
-        axioms.add(parser.getExpressionTree("_B -> _A | _B"));
-        axioms.add(parser.getExpressionTree("(_A -> _C) -> (_B -> _C) -> (_A | _B -> _C"));
-        axioms.add(parser.getExpressionTree("(_A -> _B) -> (_A -> !_B) -> !_A"));
-        axioms.add(parser.getExpressionTree("!!_A->_A"));
+        axioms.add(parser.getExpressionTree("a -> (a | b)"));
+        axioms.add(parser.getExpressionTree("b -> (a | b)"));
+        axioms.add(parser.getExpressionTree("(a -> c) -> (b -> c) -> ((a | b) -> c)"));
+        axioms.add(parser.getExpressionTree("(a -> b) -> (a -> !b) -> !a"));
+        axioms.add(parser.getExpressionTree("!!a->a"));
 
         return this;
     }
@@ -68,15 +68,23 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
     @Override
     public AbstractNewProofBuilder rebuildProof(ArrayList<ExpressionTree> oldStatements, ExpressionTree hypA) {
 
-        Map<ExpressionTree, ExpressionTree> modusPonensCandidates = new HashMap<>();
+        Map<ExpressionTreeNode, ExpressionTreeNode> modusPonensCandidates = new HashMap<>();
         Set<ExpressionTreeNode> deducted = new HashSet<>();
         BinaryOperationNode finalRoot = (BinaryOperationNode) finalStatement.root();
         ExpressionTreeNode previousFinal = finalRoot.getSecondNode();
+
         for (ExpressionTree currentStatement : oldStatements){
             if (deducted.contains(currentStatement.root())) continue;
-            processProofStatement(currentStatement, hypA, modusPonensCandidates, deducted);
-            deducted.add(currentStatement.root());
 
+            processProofStatement(currentStatement, hypA, modusPonensCandidates, deducted);
+
+            if (currentStatement.root() instanceof BinaryOperationNode)
+                if (((BinaryOperationNode) currentStatement.root()).getNodeOperation() instanceof LogicImplementation) {
+                    BinaryOperationNode currentRoot = (BinaryOperationNode) currentStatement.root();
+                    modusPonensCandidates.put(currentRoot.getSecondNode(), currentRoot.getFirstNode());
+                }
+
+            deducted.add(currentStatement.root());
             if (currentStatement.root().equals(previousFinal)) break;
         }
         return this;
@@ -84,30 +92,16 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
 
     private void processProofStatement(ExpressionTree currentStatement,
                                        ExpressionTree hypA,
-                                       Map<ExpressionTree, ExpressionTree> modusPonensCandidates,
+                                       Map<ExpressionTreeNode, ExpressionTreeNode> modusPonensCandidates,
                                        Set<ExpressionTreeNode> deducted){
         ExpressionTree previous;
-        if (currentStatement.root() instanceof BinaryOperationNode) {
-            BinaryOperationNode node = (BinaryOperationNode) currentStatement.root();
-            if (node.getNodeOperation() instanceof LogicImplementation) {
-                ExpressionTree left = new ExpressionTree(node.getFirstNode(),
-                        node.getFirstNode().getVariables());
-                ExpressionTree right = new ExpressionTree(node.getSecondNode(),
-                        node.getSecondNode().getVariables());
-
-                modusPonensCandidates.put(right, left);
-            }
-        }
-
-        if ((previous = tryToFindPreviousFast(modusPonensCandidates, currentStatement)) != null){
+        if ((previous = tryToFindPreviousFast(currentStatement, deducted, modusPonensCandidates)) != null){
             BinaryOperationNode prRoot = (BinaryOperationNode) previous.root();
 
             ExpressionTree left = new ExpressionTree(prRoot.getFirstNode(),
                     prRoot.getFirstNode().getVariables());
-            ExpressionTree right = new ExpressionTree(prRoot.getSecondNode(),
-                    prRoot.getSecondNode().getVariables());
 
-            addPreviouslyConstructed(hypA, left, right);
+            addPreviouslyConstructed(hypA, left, currentStatement.getDeepCopy());
             return;
         }
         if (isOneOfAxioms(currentStatement)) { //аксиома
@@ -130,15 +124,9 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
 
             ExpressionTree left = new ExpressionTree(prRoot.getFirstNode(),
                     prRoot.getFirstNode().getVariables());
-            ExpressionTree right = new ExpressionTree(prRoot.getSecondNode(),
-                    prRoot.getSecondNode().getVariables());
 
-            addPreviouslyConstructed(hypA, left, right);
+            addPreviouslyConstructed(hypA, left, currentStatement.getDeepCopy());
         }
-    }
-
-    private ExpressionTree tryToFindPreviousFast(Map<ExpressionTree, ExpressionTree> modusPonensCandidates, ExpressionTree currentStatement) {
-        return modusPonensCandidates.get(currentStatement);
     }
 
     private void addSelfImplication(ExpressionTree hypA){
@@ -215,23 +203,32 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         statements.add(decorator.getExpression());//hypA -> cSt
     }
 
+    private ExpressionTree tryToFindPreviousFast(ExpressionTree current,
+                                                 Set<ExpressionTreeNode> deducted,
+                                                 Map<ExpressionTreeNode, ExpressionTreeNode> candidates){
+        ExpressionTreeNode left = candidates.get(current.root());
+        if (left == null) return null;
+        if (!deducted.contains(left)) return null;
+
+        ExpressionAsSchemeDecoratorInterface decorator =
+                new ExpressionAsSchemeDecorator(Parser.getInstance().getExpressionTree("_left -> _right"));
+        decorator.changeVariableToExpression(new VariableName("_left"), left);
+        decorator.changeVariableToExpression(new VariableName("_right"), current);
+        return decorator.getExpression();
+    }
     private ExpressionTree tryToFindPrevious(Set<ExpressionTreeNode> deducted,
                                              ExpressionTree currentStatement){
         //we need (left) && (left->right) expressions
         //right == currentStatement
+        ExpressionAsSchemeDecoratorInterface decorator;
         for (ExpressionTreeNode previousRoot : deducted){
-            if (previousRoot instanceof BinaryOperationNode) {
-                BinaryOperationNode prRoot = (BinaryOperationNode) previousRoot;
+            decorator =
+                    new ExpressionAsSchemeDecorator(Parser.getInstance().getExpressionTree("left -> current"));
+            decorator.changeVariableToExpression(new VariableName("left"), previousRoot);
+            decorator.changeVariableToExpression(new VariableName("current"), currentStatement);
 
-                if (prRoot.getNodeOperation() instanceof LogicImplementation) {
-                    if (currentStatement.root().equals(prRoot.getSecondNode())) {
-                        for (ExpressionTreeNode previousLeft : deducted) {
-                            if (previousLeft.equals(prRoot.getFirstNode()))
-                                return new ExpressionTree(previousRoot.getDeepCopy(), new VariablesList());
-                        }
-                    }
-                }
-            }
+            if (deducted.contains(decorator.getExpression().root()))
+                return new ExpressionTree(previousRoot.getDeepCopy(), previousRoot.getVariables());
         }
         return null;
     }
