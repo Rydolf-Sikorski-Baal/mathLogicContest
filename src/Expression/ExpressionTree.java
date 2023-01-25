@@ -22,6 +22,7 @@ public class ExpressionTree {
     @Override
     public boolean equals(Object obj){
         if (obj.getClass() != this.getClass()) return false;
+        if (this.hashCode() != obj.hashCode()) return false;
         return this.root.equals(((ExpressionTree) obj).root);
     }
 

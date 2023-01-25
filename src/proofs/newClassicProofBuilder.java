@@ -166,22 +166,22 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         ExpressionTree firstExpression = parser.getExpressionTree("(_A->_StL)->(_A->_StL->_StR)->(_A->_StR)");
         decorator = new ExpressionAsSchemeDecorator(firstExpression);
         decorator.changeVariableToExpression(new VariableName("_A"), hypA);
-        decorator.changeVariableToExpression(new VariableName("_StL"), left.getDeepCopy());
-        decorator.changeVariableToExpression(new VariableName("_StR"), right.getDeepCopy());
+        decorator.changeVariableToExpression(new VariableName("_StL"), left);
+        decorator.changeVariableToExpression(new VariableName("_StR"), right);
         statements.add(firstExpression);
 
         ExpressionTree secondExpression = parser.getExpressionTree("(_A->_StL->_StR)->(_A->_StR)");
         decorator = new ExpressionAsSchemeDecorator(secondExpression);
         decorator.changeVariableToExpression(new VariableName("_A"), hypA);
-        decorator.changeVariableToExpression(new VariableName("_StL"), left.getDeepCopy());
-        decorator.changeVariableToExpression(new VariableName("_StR"), right.getDeepCopy());
+        decorator.changeVariableToExpression(new VariableName("_StL"), left);
+        decorator.changeVariableToExpression(new VariableName("_StR"), right);
         statements.add(secondExpression.getDeepCopy());
 
         ExpressionTree thirdExpression = parser.getExpressionTree("_A->_StR");
         decorator = new ExpressionAsSchemeDecorator(thirdExpression);
         decorator.changeVariableToExpression(new VariableName("_A"), hypA);
-        decorator.changeVariableToExpression(new VariableName("_StL"), left.getDeepCopy());
-        decorator.changeVariableToExpression(new VariableName("_StR"), right.getDeepCopy());
+        decorator.changeVariableToExpression(new VariableName("_StL"), left);
+        decorator.changeVariableToExpression(new VariableName("_StR"), right);
         statements.add(thirdExpression);
     }
 
@@ -190,7 +190,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
 
         ExpressionTree firstExpression = parser.getExpressionTree("_A -> _B -> _A");
         ExpressionAsSchemeDecoratorInterface decorator = new ExpressionAsSchemeDecorator(firstExpression);
-        decorator.changeVariableToExpression(new VariableName("_A"), currentStatement.getDeepCopy());
+        decorator.changeVariableToExpression(new VariableName("_A"), currentStatement);
         decorator.changeVariableToExpression(new VariableName("_B"), hypA);
         statements.add(decorator.getExpression());//cSt -> (hypA -> cSt))
 
@@ -199,7 +199,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         ExpressionTree secondExpression = parser.getExpressionTree("_A -> _B");
         decorator = new ExpressionAsSchemeDecorator(secondExpression);
         decorator.changeVariableToExpression(new VariableName("_A"), hypA);
-        decorator.changeVariableToExpression(new VariableName("_B"), currentStatement.getDeepCopy());
+        decorator.changeVariableToExpression(new VariableName("_B"), currentStatement);
         statements.add(decorator.getExpression());//hypA -> cSt
     }
 
@@ -228,7 +228,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
             decorator.changeVariableToExpression(new VariableName("current"), currentStatement);
 
             if (deducted.contains(decorator.getExpression().root()))
-                return new ExpressionTree(previousRoot.getDeepCopy(), previousRoot.getVariables());
+                return decorator.getExpression();
         }
         return null;
     }
