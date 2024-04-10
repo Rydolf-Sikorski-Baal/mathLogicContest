@@ -16,7 +16,7 @@ public class MetaProofNormalizer{
 
     private List<ExpressionTree> currentStatements;
     //current context
-    private List<ExpressionTree> hypotheses;
+    private List<ExpressionTree> currentHypotheses;
     //to make sure the hypotheses multiset between two metaExpressions match I use HashMap (the hash for hypothesis is basically the hash for a corresponding string)
     private Map<ExpressionTree, Integer> hypothesesMultisetCounter = new HashMap<>();
     private MetaProof metaProof;
@@ -115,11 +115,10 @@ public class MetaProofNormalizer{
         ProofBuilderDirector director = new ProofBuilderDirector(new newClassicProofBuilder());
         director.buildProof(this.currentProof, extractedHypothesis);
 
-        this.hypotheses = expression.getHypotheses();
+        this.currentHypotheses = expression.getHypotheses();
         this.hypothesesMultisetCounter = expression.getHypothesesMultisetCounter();
     }
 
-    List<ExpressionTree> currentHypotheses;
     private possibleRelationship compareHypotheses(MetaExpression expression) {
         for (Map.Entry<ExpressionTree, Integer> entry : expression.getHypothesesMultisetCounter().entrySet()){
             int currentValue = this.hypothesesMultisetCounter.getOrDefault(entry.getKey(), 0);
