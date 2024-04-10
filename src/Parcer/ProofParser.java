@@ -87,8 +87,12 @@ public class ProofParser {
 
         while (ind <= input.length() - 1){
             StringBuilder currentStatementString = new StringBuilder();
+
+            boolean initialSectionOfStatementPassed = false;
             while ((input.charAt(ind) != '\n') && (input.charAt(ind) != '\0') && (ind <= input.length() - 1)) {
-                currentStatementString.append(input.charAt(ind));
+                if (initialSectionOfStatementPassed) currentStatementString.append(input.charAt(ind));
+
+                if (ind > 0 && input.charAt(ind - 1) == '|' && input.charAt(ind) == '-') initialSectionOfStatementPassed = true;
                 ind++;
                 if (ind == input.length()) break;
             }

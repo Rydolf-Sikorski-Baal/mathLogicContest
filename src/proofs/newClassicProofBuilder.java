@@ -129,6 +129,20 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
         }
     }
 
+    private void processSelfImplication(ExpressionTree statement) {
+        BinaryOperationNode root = (BinaryOperationNode) statement.root();
+        ExpressionTreeNode newRoot = root.getFirstNode();
+        ExpressionTree newTree = new ExpressionTree(newRoot, newRoot.getVariables());
+        addSelfImplication(newTree);
+    }
+
+    private boolean isItSelfImplication(ExpressionTree statement) {
+        if (!(statement.root() instanceof BinaryOperationNode)) return false;
+        BinaryOperationNode root = (BinaryOperationNode) statement.root();
+        if (!(root.getNodeOperation() instanceof LogicImplementation)) return false;
+        return root.getFirstNode().equals(root.getSecondNode());
+    }
+
     private void addSelfImplication(ExpressionTree hypA){
         Parser parser = Parser.getInstance();
         VariableName AName = new VariableName("_A");

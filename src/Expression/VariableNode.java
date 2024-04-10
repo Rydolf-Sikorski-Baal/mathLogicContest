@@ -30,7 +30,6 @@ public class VariableNode extends ExpressionTreeNode{
             constructedMap.put(this.variableName, (ExpressionTreeNode)obj);
             return true;
         }
-
         return constructedMap.get(this.variableName).equals(obj);
     }
 
