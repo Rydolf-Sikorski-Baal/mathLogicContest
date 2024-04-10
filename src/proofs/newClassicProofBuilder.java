@@ -1,6 +1,7 @@
 package proofs;
 
 import Expression.*;
+import Expression.MathLogic.MathLogicAxioms;
 import MathOperations.LogicImplementation;
 import Parcer.Parser;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
@@ -10,7 +11,7 @@ import java.util.*;
 
 public class newClassicProofBuilder extends AbstractNewProofBuilder {
     private final ArrayList<ExpressionTree> hypotheses = new ArrayList<>();
-    private final ArrayList<ExpressionTree> axioms = new ArrayList<>();
+    private List<ExpressionTree> axioms = new ArrayList<>();
     private ExpressionTree excludedHypothesis;
     private ExpressionTree finalStatement;
 
@@ -27,18 +28,7 @@ public class newClassicProofBuilder extends AbstractNewProofBuilder {
 
     @Override
     public AbstractNewProofBuilder setAxioms() {
-        Parser parser = Parser.getInstance();
-        axioms.add(parser.getExpressionTree("a -> (b -> a)"));
-        axioms.add(parser.getExpressionTree("(a -> b) -> (a -> b -> c) -> (a -> c)"));
-        axioms.add(parser.getExpressionTree("a -> (b -> a & b)"));
-        axioms.add(parser.getExpressionTree("a & b -> a"));
-        axioms.add(parser.getExpressionTree("a & b -> b"));
-
-        axioms.add(parser.getExpressionTree("a -> (a | b)"));
-        axioms.add(parser.getExpressionTree("b -> (a | b)"));
-        axioms.add(parser.getExpressionTree("(a -> c) -> (b -> c) -> ((a | b) -> c)"));
-        axioms.add(parser.getExpressionTree("(a -> b) -> (a -> !b) -> !a"));
-        axioms.add(parser.getExpressionTree("!!a->a"));
+        this.axioms = MathLogicAxioms.getClassicAxiomsList();
 
         return this;
     }

@@ -1,6 +1,7 @@
 package proofs;
 
 import Expression.ExpressionTree;
+import Expression.MathLogic.MathLogicAxioms;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecorator;
 import Expression.SchemeDecorator.ExpressionAsSchemeDecoratorInterface;
 import Expression.VariableName;
@@ -8,11 +9,12 @@ import Parcer.Parser;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class newIntuitionistProofBuilder extends AbstractNewProofBuilder{
     private ArrayList<ExpressionTree> hypotheses;
-    private final ArrayList<ExpressionTree> axioms = new ArrayList<>();
+    private List<ExpressionTree> axioms = new ArrayList<>();
     private ExpressionTree tenthAxiom;
     private ExpressionTree finalStatement;
 
@@ -26,18 +28,7 @@ public class newIntuitionistProofBuilder extends AbstractNewProofBuilder{
 
     @Override
     public AbstractNewProofBuilder setAxioms() {
-        Parser parser = Parser.getInstance();
-        axioms.add(parser.getExpressionTree("a -> (b -> a)"));
-        axioms.add(parser.getExpressionTree("(a -> b) -> (a -> b -> c) -> (a -> c)"));
-        axioms.add(parser.getExpressionTree("a -> (b -> a & b)"));
-        axioms.add(parser.getExpressionTree("a & b -> a"));
-        axioms.add(parser.getExpressionTree("a & b -> b"));
-
-        axioms.add(parser.getExpressionTree("a -> (a | b)"));
-        axioms.add(parser.getExpressionTree("b -> (a | b)"));
-        axioms.add(parser.getExpressionTree("(a -> c) -> (b -> c) -> ((a | b) -> c)"));
-        axioms.add(parser.getExpressionTree("(a -> b) -> (a -> !b) -> !a"));
-        axioms.add(parser.getExpressionTree("a -> (!a -> b)"));
+        this.axioms = MathLogicAxioms.getIntuitionistAxiomsList();
 
         return this;
     }

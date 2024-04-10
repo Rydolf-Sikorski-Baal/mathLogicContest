@@ -3,11 +3,12 @@ package proofs;
 import Expression.ExpressionTree;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Proof {
     private final ArrayList<ExpressionTree> hypotheses;
 
-    public Proof(ArrayList<ExpressionTree> hypotheses, ArrayList<ExpressionTree> axioms, ExpressionTree finalStatement, ArrayList<ExpressionTree> statements) {
+    public Proof(ArrayList<ExpressionTree> hypotheses, List<ExpressionTree> axioms, ExpressionTree finalStatement, ArrayList<ExpressionTree> statements) {
         this.hypotheses = hypotheses;
         this.axioms = axioms;
         this.finalStatement = finalStatement;
@@ -15,8 +16,8 @@ public class Proof {
     }
 
     public ArrayList<ExpressionTree> hypotheses(){return hypotheses;}
-    private final ArrayList<ExpressionTree> axioms;
-    public ArrayList<ExpressionTree> axioms(){return axioms;}
+    private final List<ExpressionTree> axioms;
+    public List<ExpressionTree> axioms(){return axioms;}
     private final ExpressionTree finalStatement;
     public ExpressionTree finalStatement(){return finalStatement;}
     private final ArrayList<ExpressionTree> statements;
